@@ -1,15 +1,17 @@
-from django.db import models
 from django.contrib.auth import get_user_model
-
+from django.db import models
+from .constants import MAX_LENGTH
 
 User = get_user_model()
 
 
 class BaseModel(models.Model):
-    created_at = models.DateTimeField('Добавлено', auto_now_add=True)
+    created_at = models.DateTimeField(
+        verbose_name='Добавлено',
+        auto_now_add=True)
     is_published = models.BooleanField(
-        'Опубликовано',
         default=True,
+        verbose_name='Опубликовано',
         help_text='Снимите галочку, чтобы скрыть публикацию.'
     )
 
@@ -18,14 +20,16 @@ class BaseModel(models.Model):
 
 
 class Category(BaseModel):
-    title = models.CharField(max_length=256, verbose_name='Заголовок')
+    title = models.CharField(
+        max_length=MAX_LENGTH,
+        verbose_name='Заголовок'
+    )
     description = models.TextField(verbose_name='Описание')
     slug = models.SlugField(
         unique=True,
         verbose_name='Идентификатор',
-        help_text='Идентификатор страницы для URL;'
-        'разрешены символы латиницы, цифры,'
-        'дефис и подчёркивание.'
+        help_text='Идентификатор страницы для URL; разрешены символы '
+                  'латиницы, цифры, дефис и подчёркивание.'
     )
 
     class Meta:
@@ -37,7 +41,10 @@ class Category(BaseModel):
 
 
 class Location(BaseModel):
-    name = models.CharField(max_length=256, verbose_name='Название места')
+    name = models.CharField(
+        max_length=256,
+        verbose_name='Название места'
+    )
 
     class Meta:
         verbose_name = 'местоположение'
@@ -48,12 +55,15 @@ class Location(BaseModel):
 
 
 class Post(BaseModel):
-    title = models.CharField(max_length=256, verbose_name='Заголовок')
+    title = models.CharField(
+        max_length=256,
+        verbose_name='Заголовок'
+    )
     text = models.TextField(verbose_name='Текст')
     pub_date = models.DateTimeField(
         verbose_name='Дата и время публикации',
-        help_text='Если установить дату и время в будущем'
-        '— можно делать отложенные публикации.'
+        help_text='Если установить дату и время в будущем — '
+                  'можно делать отложенные публикации.'
     )
     author = models.ForeignKey(
         User,
@@ -62,15 +72,17 @@ class Post(BaseModel):
     )
     location = models.ForeignKey(
         Location,
-        on_delete=models.SET_NULL,
         null=True,
         blank=True,
+        on_delete=models.SET_NULL,
+        related_name='posts',
         verbose_name='Местоположение'
     )
     category = models.ForeignKey(
         Category,
-        on_delete=models.SET_NULL,
         null=True,
+        on_delete=models.SET_NULL,
+        related_name='posts',
         verbose_name='Категория'
     )
 
